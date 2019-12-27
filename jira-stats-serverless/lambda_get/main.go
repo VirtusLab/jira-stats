@@ -1,9 +1,9 @@
 package main
 
 import (
-	"bytes"
 	"context"
-	"encoding/json"
+	"fmt"
+	"jira-stats/jira-stats-serverless/jira"
 
 	"github.com/aws/aws-lambda-go/events"
 	"github.com/aws/aws-lambda-go/lambda"
@@ -13,27 +13,23 @@ import (
 // AWS Lambda Proxy Request functionality (default behavior)
 //
 // https://serverless.com/framework/docs/providers/aws/events/apigateway/#lambda-proxy-integration
-type Response events.APIGatewayProxyResponse
 
 // Handler is our lambda handler invoked by the `lambda.Start` function call
-func Handler(ctx context.Context) (Response, error) {
-	var buf bytes.Buffer
+func mainHandler(ctx context.Context) (events.APIGatewayProxyResponse, error) {
+	number, err := jira.Fetch()
 
-	body, err := json.Marshal(map[string]interface{}{
-		"message": "Go Serverless v1.0! Your function executed successfully!",
-	})
+	result := fmt.Sprintf("Number of fetched Jiras: %d", number)
 	if err != nil {
-		return Response{StatusCode: 404}, err
+		result = err.Error()
 	}
-	json.HTMLEscape(&buf, body)
 
-	resp := Response{
-		StatusCode:      200,
+	resp := events.APIGatewayProxyResponse{
+		StatusCode:      201,
 		IsBase64Encoded: false,
-		Body:            buf.String(),
+		Body:            result,
 		Headers: map[string]string{
 			"Content-Type":           "application/json",
-			"X-MyCompany-Func-Reply": "hello-handler",
+			"X-MyCompany-Func-Reply": "lambda_get-handler",
 		},
 	}
 
@@ -41,5 +37,5 @@ func Handler(ctx context.Context) (Response, error) {
 }
 
 func main() {
-	lambda.Start(Handler)
+	lambda.Start(mainHandler)
 }

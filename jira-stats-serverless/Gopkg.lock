@@ -2,7 +2,15 @@
 
 
 [[projects]]
-  digest = "1:94a631d7a7476f5c2f4c242a05aa3535039cc4f5269552c13c0d17c0876f2ce2"
+  digest = "1:a960de0c66cdf5038ba7f2bb8245a0752533fa653d03ee61da63e312ac8cee60"
+  name = "github.com/andygrunwald/go-jira"
+  packages = ["."]
+  pruneopts = ""
+  revision = "1b4556ca5af8177a656b688521514fd6a3319059"
+  version = "v1.12.0"
+
+[[projects]]
+  digest = "1:d37b5cbae31a6d3685931cdb7d355e650a5dcb265dc340b57b6f17158234bd38"
   name = "github.com/aws/aws-lambda-go"
   packages = [
     "events",
@@ -12,15 +20,132 @@
     "lambdacontext",
   ]
   pruneopts = ""
-  revision = "e5086e5a7e53f7039034fa29008221760b04ff79"
-  version = "v1.13.2"
+  revision = "b5b7267d297de263cc5b61f8c37543daa9c95ffd"
+  version = "v1.13.3"
+
+[[projects]]
+  digest = "1:96dafb8bf6c23588e7351a4fe88e1648a67fb5c674b005b3221ec4d5463ca7a7"
+  name = "github.com/aws/aws-sdk-go"
+  packages = [
+    "aws",
+    "aws/awserr",
+    "aws/awsutil",
+    "aws/client",
+    "aws/client/metadata",
+    "aws/corehandlers",
+    "aws/credentials",
+    "aws/credentials/ec2rolecreds",
+    "aws/credentials/endpointcreds",
+    "aws/credentials/processcreds",
+    "aws/credentials/stscreds",
+    "aws/crr",
+    "aws/csm",
+    "aws/defaults",
+    "aws/ec2metadata",
+    "aws/endpoints",
+    "aws/request",
+    "aws/session",
+    "aws/signer/v4",
+    "internal/ini",
+    "internal/sdkio",
+    "internal/sdkmath",
+    "internal/sdkrand",
+    "internal/sdkuri",
+    "internal/shareddefaults",
+    "private/protocol",
+    "private/protocol/json/jsonutil",
+    "private/protocol/jsonrpc",
+    "private/protocol/query",
+    "private/protocol/query/queryutil",
+    "private/protocol/rest",
+    "private/protocol/xml/xmlutil",
+    "service/dynamodb",
+    "service/dynamodb/dynamodbattribute",
+    "service/sts",
+    "service/sts/stsiface",
+  ]
+  pruneopts = ""
+  revision = "fcbfc357f185c1d55e2c37626357ec92abd52286"
+  version = "v1.26.8"
+
+[[projects]]
+  digest = "1:6098222470fe0172157ce9bbef5d2200df4edde17ee649c5d6e48330e4afa4c6"
+  name = "github.com/dgrijalva/jwt-go"
+  packages = ["."]
+  pruneopts = ""
+  revision = "06ea1031745cb8b3dab3f6a236daf2b0aa468b7e"
+  version = "v3.2.0"
+
+[[projects]]
+  digest = "1:2defd14040b1ca18840524e9d0f9cfab0ea8d2f2d396b343d221f8bc8e21ab9d"
+  name = "github.com/fatih/structs"
+  packages = ["."]
+  pruneopts = ""
+  revision = "4966fc68f5b7593aafa6cbbba2d65ec6e1416047"
+  version = "v1.1.0"
+
+[[projects]]
+  digest = "1:cea4aa2038169ee558bf507d5ea02c94ca85bcca28a4c7bb99fd59b31e43a686"
+  name = "github.com/google/go-querystring"
+  packages = ["query"]
+  pruneopts = ""
+  revision = "44c6ddd0a2342c386950e880b658017258da92fc"
+  version = "v1.0.0"
+
+[[projects]]
+  digest = "1:13fe471d0ed891e8544eddfeeb0471fd3c9f2015609a1c000aefdedf52a19d40"
+  name = "github.com/jmespath/go-jmespath"
+  packages = ["."]
+  pruneopts = ""
+  revision = "c2b33e84"
+
+[[projects]]
+  digest = "1:7b43eccd14e0c1b304a63ce06197934af9f696f89eb2f60834150160317b0651"
+  name = "github.com/logrusorgru/aurora"
+  packages = ["."]
+  pruneopts = ""
+  revision = "21d75270181e0436fee7bd58b991c212cf309068"
+  version = "v2.0"
+
+[[projects]]
+  digest = "1:1d7e1867c49a6dd9856598ef7c3123604ea3daabf5b83f303ff457bcbc410b1d"
+  name = "github.com/pkg/errors"
+  packages = ["."]
+  pruneopts = ""
+  revision = "ba968bfe8b2f7e042a574c888954fccecfa385b4"
+  version = "v0.8.1"
+
+[[projects]]
+  digest = "1:f7daf68f3bd2794a291f67f35c9cc8675980d05cdb774f1715970824e3545cde"
+  name = "github.com/trivago/tgo"
+  packages = [
+    "tcontainer",
+    "treflect",
+  ]
+  pruneopts = ""
+  revision = "efdb64f40efe6e7cd3f50415710e7af6a7c316ad"
+  version = "v1.0.7"
+
+[[projects]]
+  digest = "1:a4810a27d5bdf82618dae7e12e477a89c473f044ea059d548c4a6c2d38eab339"
+  name = "github.com/ztrue/tracerr"
+  packages = ["."]
+  pruneopts = ""
+  revision = "4635b9d09734c5eb523f97b0fca5b07222584ba1"
+  version = "v0.3.0"
 
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
   input-imports = [
+    "github.com/andygrunwald/go-jira",
     "github.com/aws/aws-lambda-go/events",
     "github.com/aws/aws-lambda-go/lambda",
+    "github.com/aws/aws-sdk-go/aws",
+    "github.com/aws/aws-sdk-go/aws/session",
+    "github.com/aws/aws-sdk-go/service/dynamodb",
+    "github.com/aws/aws-sdk-go/service/dynamodb/dynamodbattribute",
+    "github.com/ztrue/tracerr",
   ]
   solver-name = "gps-cdcl"
   solver-version = 1

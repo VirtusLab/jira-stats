@@ -24,10 +24,13 @@ frameworkVersion: '>=1.28.0 <2.0.0'
 provider:
   name: aws
   runtime: go1.x
+  region: eu-west-1
+  deploymentBucket:
+    name: com.virtuslab.jira-stats.lambdas
 
 # you can overwrite defaults here
 #  stage: dev
-#  region: us-east-1
+
 
 # you can add statements to the Lambda function's IAM Role here
 #  iamRoleStatements:
@@ -56,18 +59,18 @@ package:
     - ./bin/**
 
 functions:
-  hello:
-    handler: bin/hello
-    events:
-      - http:
-          path: hello
-          method: get
   world:
-    handler: bin/world
+    handler: bin/lambda_get
     events:
       - http:
-          path: world
+          path: lambda_get
           method: get
+
+  fetch_data:
+    handler: bin/lambda_fetch_data
+    events:
+      - schedule: rate(6 hours)
+
 #    The following are a few example events you can configure
 #    NOTE: Please make sure to change your handler code to work with those events
 #    Check the event documentation for details
@@ -120,3 +123,44 @@ functions:
 #     NewOutput:
 #       Description: "Description for the output"
 #       Value: "Some output value"
+
+resources:
+  Resources:
+    TicketTable:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        TableName: Ticket
+        AttributeDefinitions:
+          - AttributeName: "Id"
+            AttributeType: "S"
+        KeySchema:
+          - AttributeName: "Id"
+            KeyType: "HASH"
+
+        BillingMode: "PAY_PER_REQUEST"
+
+    TransitionTable:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        TableName: "Transition"
+        AttributeDefinitions:
+          - AttributeName: "Id"
+            AttributeType: "S"
+        KeySchema:
+          - AttributeName: "Id"
+            KeyType: "HASH"
+
+        BillingMode: "PAY_PER_REQUEST"
+
+    LastUpdate:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        TableName: "Config"
+        AttributeDefinitions:
+          - AttributeName: "ConfigName"
+            AttributeType: "S"
+        KeySchema:
+          - AttributeName: "ConfigName"
+            KeyType: "HASH"
+
+        BillingMode: "PAY_PER_REQUEST"
