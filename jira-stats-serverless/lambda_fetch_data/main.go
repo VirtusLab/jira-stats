@@ -3,32 +3,26 @@ package main
 import (
 	"context"
 	"fmt"
-	"jira-stats/jira-stats-serverless/jira"
-
 	"github.com/aws/aws-lambda-go/events"
 	"github.com/aws/aws-lambda-go/lambda"
+	"jira-stats/jira-stats-serverless/analyzer"
+	"log"
+	"time"
 )
 
-// Handler is our lambda handler invoked by the `lambda.Start` function call
-func fetchHandler(ctx context.Context) (events.APIGatewayProxyResponse, error) {
-	number, err := jira.Fetch()
+// Handler is our lambda invoked by CloudWatch event
+func fetchHandler(ctx context.Context, request events.CloudWatchEvent) (interface{}, error) {
+	log.Printf("Jira fetch invoked by: %s at %s\n", request.DetailType, request.Time.Format(time.RFC3339))
 
-	result := fmt.Sprintf("Number of fetched Jiras: %d", number)
+	number, err := analyzer.ProcessTickets(100)
+
+	result := fmt.Sprintf("Number of processed Jiras: %d", number)
 	if err != nil {
 		result = err.Error()
 	}
 
-	resp := events.APIGatewayProxyResponse{
-		StatusCode:      200,
-		IsBase64Encoded: false,
-		Body:            result,
-		Headers: map[string]string{
-			"Content-Type":           "application/json",
-			"X-MyCompany-Func-Reply": "lambda_get-handler",
-		},
-	}
-
-	return resp, nil
+	log.Printf("%s\n", result)
+	return result, nil
 }
 
 func main() {

@@ -24,7 +24,7 @@
   version = "v1.13.3"
 
 [[projects]]
-  digest = "1:96dafb8bf6c23588e7351a4fe88e1648a67fb5c674b005b3221ec4d5463ca7a7"
+  digest = "1:7980af5e19c3739b07cc411ca5d59cb5851a359f6a070348aa23be387e3b8e7e"
   name = "github.com/aws/aws-sdk-go"
   packages = [
     "aws",
@@ -61,12 +61,22 @@
     "private/protocol/xml/xmlutil",
     "service/dynamodb",
     "service/dynamodb/dynamodbattribute",
+    "service/dynamodb/expression",
+    "service/secretsmanager",
     "service/sts",
     "service/sts/stsiface",
   ]
   pruneopts = ""
-  revision = "fcbfc357f185c1d55e2c37626357ec92abd52286"
-  version = "v1.26.8"
+  revision = "a1e6946e8014a793d989e64ef5566315010ce898"
+  version = "v1.27.0"
+
+[[projects]]
+  digest = "1:0deddd908b6b4b768cfc272c16ee61e7088a60f7fe2f06c547bd3d8e1f8b8e77"
+  name = "github.com/davecgh/go-spew"
+  packages = ["spew"]
+  pruneopts = ""
+  revision = "8991bc29aa16c548c550c7ff78260e27b9ab7c73"
+  version = "v1.1.1"
 
 [[projects]]
   digest = "1:6098222470fe0172157ce9bbef5d2200df4edde17ee649c5d6e48330e4afa4c6"
@@ -116,6 +126,22 @@
   version = "v0.8.1"
 
 [[projects]]
+  digest = "1:256484dbbcd271f9ecebc6795b2df8cad4c458dd0f5fd82a8c2fa0c29f233411"
+  name = "github.com/pmezard/go-difflib"
+  packages = ["difflib"]
+  pruneopts = ""
+  revision = "792786c7400a136282c1664665ae0a8db921c6c2"
+  version = "v1.0.0"
+
+[[projects]]
+  digest = "1:f7b541897bcde05a04a044c342ddc7425aab7e331f37b47fbb486cd16324b48e"
+  name = "github.com/stretchr/testify"
+  packages = ["assert"]
+  pruneopts = ""
+  revision = "221dbe5ed46703ee255b1da0dec05086f5035f62"
+  version = "v1.4.0"
+
+[[projects]]
   digest = "1:f7daf68f3bd2794a291f67f35c9cc8675980d05cdb774f1715970824e3545cde"
   name = "github.com/trivago/tgo"
   packages = [
@@ -134,6 +160,14 @@
   revision = "4635b9d09734c5eb523f97b0fca5b07222584ba1"
   version = "v0.3.0"
 
+[[projects]]
+  digest = "1:5a53f6ef09fb1ac261a97f8a72e8837ff53cbaa969022a6679da210e4cbe9b0f"
+  name = "gopkg.in/yaml.v2"
+  packages = ["."]
+  pruneopts = ""
+  revision = "1f64d6156d11335c3f22d9330b0ad14fc1e789ce"
+  version = "v2.2.7"
+
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
@@ -145,6 +179,9 @@
     "github.com/aws/aws-sdk-go/aws/session",
     "github.com/aws/aws-sdk-go/service/dynamodb",
     "github.com/aws/aws-sdk-go/service/dynamodb/dynamodbattribute",
+    "github.com/aws/aws-sdk-go/service/dynamodb/expression",
+    "github.com/aws/aws-sdk-go/service/secretsmanager",
+    "github.com/stretchr/testify/assert",
     "github.com/ztrue/tracerr",
   ]
   solver-name = "gps-cdcl"
