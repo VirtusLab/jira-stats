@@ -149,3 +149,19 @@ func TestMultipleDevIntervals(t *testing.T) {
 	hours := domain.CalculateDevDays(ticket, startDate, endDate)
 	assert.Equal(t, 1.0+2.5, hours, "Incorrect number of dev hours calculated")
 }
+
+// Tests skipping calculations
+func TestSkippingTickets(t *testing.T) {
+	startDate := dirtyDate("2020-01-01T00:00:00")
+	endDate := dirtyDate("2020-03-31T23:59:59")
+
+	ticket := createTicket("In Review", dirtyDate("2020-02-01T09:00:00"))
+	ticket.Type = "Epic"
+	ticket.Transitions = domain.MakeIntervals(ticket,
+		createTransition("To Do", "In Development", dirtyDate("2020-02-02T09:00:00")),
+		createTransition("In Development", "In Review", dirtyDate("2020-02-03T19:00:00")),
+	)
+
+	hours := domain.CalculateDevDays(ticket, startDate, endDate)
+	assert.Equal(t, 0.0, hours, "Epic should not be taken into account")
+}

@@ -21,6 +21,7 @@ type Ticket struct {
 	Id          string
 	Key         string
 	State       string
+	Type        string
 	Title       string
 	Transitions []TransitionInterval
 	UpdateTime  time.Time
@@ -130,6 +131,7 @@ func JiraToDomain(jiraIssue jira.Issue) (Ticket, error) {
 		Id:         jiraIssue.ID,
 		Key:        jiraIssue.Key,
 		Title:      jiraIssue.Fields.Summary,
+		Type:       jiraIssue.Fields.Type.Name,
 		State:      state,
 		UpdateTime: updateTime,
 		CreateTime: createdTime,
