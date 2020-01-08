@@ -1,6 +1,7 @@
 package domain
 
 import (
+	"log"
 	"time"
 )
 
@@ -20,12 +21,21 @@ const StateDev = "In Development"
 func CalculateDevDays(ticket Ticket, start time.Time, end time.Time) float64 {
 	var cumulativeTime int
 
+	if shouldSkipTicket(ticket) {
+		log.Printf("Ticket %s has been skipped from dev time calculation", ticket.Key)
+		return 0.0
+	}
+
 	for _, transition := range ticket.Transitions {
 		devTime := calculateDevTime(transition, start, end)
 		cumulativeTime += devTime
 	}
 
 	return float64(cumulativeTime) / 8.0
+}
+
+func shouldSkipTicket(ticket Ticket) bool {
+	return ticket.Type == "Epic" // epics are being skipped from calculation
 }
 
 func calculateDevTime(interval TransitionInterval, start time.Time, end time.Time) int {
