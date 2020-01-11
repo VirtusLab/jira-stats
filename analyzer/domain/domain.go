@@ -8,8 +8,8 @@ import (
 	"time"
 )
 
-var BEGINING_OF_TIME = time.Date(1970, 1, 1, 0, 0, 0, 0, time.UTC)
-var END_OF_TIME = time.Date(9999, 12, 31, 23, 59, 59, 999, time.UTC)
+var BeginingOfTime = time.Date(1970, 1, 1, 0, 0, 0, 0, time.UTC)
+var EndOfTime = time.Date(9999, 12, 31, 23, 59, 59, 999, time.UTC)
 
 const JiraTimestampFormat = "2006-01-02T15:04:05.000-0700"
 const JiraUpdateTimestampFormat = "2006-01-02T15:04:05-0700"
@@ -85,8 +85,8 @@ func JiraToDomain(jiraIssue jira.Issue) (Ticket, error) {
 
 	transitions := make([]Transition, 0)
 
-	devStartDate := END_OF_TIME
-	devEndDate := BEGINING_OF_TIME
+	devStartDate := EndOfTime
+	devEndDate := BeginingOfTime
 
 	for _, historyItem := range jiraIssue.Changelog.Histories {
 		for _, changeItem := range historyItem.Items {
@@ -147,11 +147,11 @@ func JiraToDomain(jiraIssue jira.Issue) (Ticket, error) {
 func unmarshalDatetime(field jira.Time) (time.Time, error) {
 	datetimeRaw, err := field.MarshalJSON()
 	if err != nil {
-		return BEGINING_OF_TIME, err
+		return BeginingOfTime, err
 	}
 	datetime, err := time.Parse(JiraUpdateTimestampFormat, strings.ReplaceAll(string(datetimeRaw), "\"", ""))
 	if err != nil {
-		return BEGINING_OF_TIME, err
+		return BeginingOfTime, err
 	}
 	return datetime, nil
 }

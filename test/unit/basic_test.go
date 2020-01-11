@@ -32,8 +32,8 @@ func TestCorrectAssignmentForNoTransition(t *testing.T) {
 	}
 
 	assert.Equal(t, len(tickets), 1, "There should be one analyzer ticket created")
-	assert.Equal(t, tickets[0].DevStartDate, domain.END_OF_TIME.Unix(), "Start date should not be set")
-	assert.Equal(t, tickets[0].DevEndDate, domain.BEGINING_OF_TIME.Unix(), "End date should not be set")
+	assert.Equal(t, tickets[0].DevStartDate, domain.EndOfTime.Unix(), "Start date should not be set")
+	assert.Equal(t, tickets[0].DevEndDate, domain.BeginingOfTime.Unix(), "End date should not be set")
 }
 
 // History array is empty
@@ -51,8 +51,8 @@ func TestCorrectAssignmentForNoHistory(t *testing.T) {
 	}
 
 	assert.Equal(t, len(tickets), 1, "There should be one analyzer ticket created")
-	assert.Equal(t, tickets[0].DevStartDate, domain.END_OF_TIME.Unix(), "Start date should not be set")
-	assert.Equal(t, tickets[0].DevEndDate, domain.BEGINING_OF_TIME.Unix(), "End date should not be set")
+	assert.Equal(t, tickets[0].DevStartDate, domain.EndOfTime.Unix(), "Start date should not be set")
+	assert.Equal(t, tickets[0].DevEndDate, domain.BeginingOfTime.Unix(), "End date should not be set")
 }
 
 // simple history with one state transition

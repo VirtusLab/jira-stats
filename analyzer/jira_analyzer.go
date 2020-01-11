@@ -11,7 +11,7 @@ import (
 
 const GoogleSpreadsheetFormat = "2006-01-02 15:04:05"
 
-const MaxBatchSize = 300
+const MaxBatchSize = 400
 
 // Fetches data from Jira and stores it in DB
 func ProcessTickets(batchCount int) (int, error) {
@@ -85,7 +85,7 @@ func transformToModel(jiraTickets []jira.Issue) (tickets []domain.Ticket, err er
 func storeTickets(tickets []domain.Ticket) (lastUpdateTime time.Time, err error) {
 	defer timeTrack(time.Now(), fmt.Sprintf("Storing %d tickets", len(tickets)))
 
-	mostRecentUpdate := domain.BEGINING_OF_TIME
+	mostRecentUpdate := domain.BeginingOfTime
 	// stores new model
 	for _, ticket := range tickets {
 		err = store(ticket)
