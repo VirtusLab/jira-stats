@@ -4,12 +4,17 @@ BUILDTAGS :=
 
 .PHONY: build clean deploy
 
+
+init:
+	@echo "Initializing this Makefile dependencies..."
+	go get -u github.com/golang/dep/cmd/dep
+
 build:
 	dep ensure -v
-	env GOOS=linux go build -ldflags="-s -w" -o bin/lambda_get lambda_get/main.go
-	env GOOS=linux go build -ldflags="-s -w" -o bin/lambda_fetch_data lambda_fetch_data/main.go
+	env GOOS=linux go build -ldflags="-s -w" -o ./bin/lambda_get ./lambda_get/main.go
+	env GOOS=linux go build -ldflags="-s -w" -o ./bin/lambda_fetch_data ./lambda_fetch_data/main.go
 
-	env GOOS=linux go build -ldflags="-s -w" -o bin/local local/main.go
+	env GOOS=linux go build -ldflags="-s -w" -o ./bin/local ./local/main.go
 
 tests: ## Runs the go tests
 	@echo "+ $@"
