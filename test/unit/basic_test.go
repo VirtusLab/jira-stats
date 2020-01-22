@@ -135,6 +135,53 @@ func TestCorrectAssignmentForComplicatedHistory(t *testing.T) {
 	assert.Equal(t, tickets[0].DevEndDate, endDate.Unix(), "End date should be set correctly")
 }
 
+// two "In Dev" with other state in-between
+func TestTwoInDevStates(t *testing.T) {
+	firstInDevTransitionIn := "2006-02-02T15:04:05.000-0700"
+	lastInDevTransitionOut := "2006-05-12T15:04:05.000-0700"
+
+	issue := createJiraIssue(
+		changeLog(
+			[]jira.ChangelogHistory{
+				changeLogHistoryItem(
+					"2005-01-02T15:04:05.000-0700",
+					[]jira.ChangelogItems{
+						changeLogItem("Description", "Prev", "Current"),
+					},
+				),
+				changeLogHistoryItem( // 1st In Dev state
+					firstInDevTransitionIn,
+					[]jira.ChangelogItems{changeLogItem("Status", "To Do", "In Development")},
+				),
+				changeLogHistoryItem( // different state
+					"2006-03-03T15:04:05.000-0700",
+					[]jira.ChangelogItems{changeLogItem("Status", "In Development", "Testing")},
+				),
+				changeLogHistoryItem( // In Dev again
+					"2006-05-04T12:15:05.000-0700",
+					[]jira.ChangelogItems{changeLogItem("Status", "Testing", "In Development")},
+				),
+				changeLogHistoryItem( // and another state again
+					lastInDevTransitionOut,
+					[]jira.ChangelogItems{changeLogItem("Status", "In Development", "Testing")},
+				),
+			},
+		),
+	)
+
+	tickets, err := jiraProcessor.BuildModel([]jira.Issue{issue})
+	if err != nil {
+		tracerr.PrintSourceColor(err)
+		t.Errorf("Found error: %s", err.Error())
+	}
+
+	startDate, _ := time.Parse(domain.JiraTimestampFormat, firstInDevTransitionIn)
+	endDate, _ := time.Parse(domain.JiraTimestampFormat, lastInDevTransitionOut)
+
+	assert.Equal(t, tickets[0].DevStartDate, startDate.Unix(), "Start date should be set correctly")
+	assert.Equal(t, tickets[0].DevEndDate, endDate.Unix(), "End date should be set correctly")
+}
+
 func createJiraIssue(changeLog jira.Changelog) jira.Issue {
 	return jira.Issue{
 		ID:  "11232",
