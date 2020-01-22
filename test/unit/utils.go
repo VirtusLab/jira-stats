@@ -1,7 +1,7 @@
 package unit
 
 import (
-	"jira-stats/jira-stats-serverless/analyzer/domain"
+	"github.com/VirtusLab/jira-stats/analyzer/domain"
 	"time"
 )
 

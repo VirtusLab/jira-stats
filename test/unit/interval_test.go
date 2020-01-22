@@ -1,8 +1,8 @@
 package unit
 
 import (
+	"github.com/VirtusLab/jira-stats/analyzer/domain"
 	"github.com/stretchr/testify/assert"
-	"jira-stats/jira-stats-serverless/analyzer/domain"
 	"testing"
 )
 

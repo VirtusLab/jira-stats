@@ -3,9 +3,9 @@ package main
 import (
 	"context"
 	"fmt"
+	"github.com/VirtusLab/jira-stats/analyzer"
 	"github.com/aws/aws-lambda-go/events"
 	"github.com/aws/aws-lambda-go/lambda"
-	"jira-stats/jira-stats-serverless/analyzer"
 	"log"
 	"time"
 )
