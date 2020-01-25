@@ -2,9 +2,9 @@ package analyzer
 
 import (
 	"fmt"
+	"github.com/VirtusLab/jira-stats/analyzer/domain"
 	"github.com/andygrunwald/go-jira"
 	"github.com/ztrue/tracerr"
-	"jira-stats/jira-stats-serverless/analyzer/domain"
 	"log"
 	"time"
 )

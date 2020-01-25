@@ -1,9 +1,9 @@
 package main
 
 import (
+	"github.com/VirtusLab/jira-stats/analyzer"
+	"github.com/VirtusLab/jira-stats/analyzer/domain"
 	"github.com/ztrue/tracerr"
-	"jira-stats/jira-stats-serverless/analyzer"
-	"jira-stats/jira-stats-serverless/analyzer/domain"
 	"log"
 	"time"
 )

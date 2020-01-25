@@ -1,11 +1,11 @@
 package unit
 
 import (
+	jiraProcessor "github.com/VirtusLab/jira-stats/analyzer"
+	"github.com/VirtusLab/jira-stats/analyzer/domain"
 	"github.com/andygrunwald/go-jira"
 	"github.com/stretchr/testify/assert"
 	"github.com/ztrue/tracerr"
-	jiraProcessor "jira-stats/jira-stats-serverless/analyzer"
-	"jira-stats/jira-stats-serverless/analyzer/domain"
 	"testing"
 	"time"
 )

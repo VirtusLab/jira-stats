@@ -3,11 +3,6 @@ language: go
 go:
 - 1.13.x
 
-before_install:
-- cd ../../../
-- mv ./github.com/VirtusLab/jira-stats ./
-- cd ./jira-stats/jira-stats-serverless
-
 install:
 - make init
 

@@ -3,9 +3,9 @@ package analyzer
 import (
 	"encoding/json"
 	"fmt"
+	"github.com/VirtusLab/jira-stats/analyzer/domain"
 	"github.com/andygrunwald/go-jira"
 	"github.com/ztrue/tracerr"
-	"jira-stats/jira-stats-serverless/analyzer/domain"
 	"log"
 	"os"
 	"time"
