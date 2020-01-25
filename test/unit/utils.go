@@ -5,13 +5,15 @@ import (
 	"time"
 )
 
+const SimpleDateFormat = "2006-01-02T15:04:05"
+
 func createTicket(status string, createTime time.Time, transitions ...domain.TransitionInterval) domain.Ticket {
 	return domain.Ticket{
 		Id:           "Ticket-532",
 		Key:          "Ticket-532",
 		Title:        "Random title",
 		Transitions:  transitions,
-		UpdateTime:   domain.BEGINING_OF_TIME,
+		UpdateTime:   domain.BeginingOfTime,
 		CreateTime:   createTime,
 		State:        status,
 		DevStartDate: -1,
@@ -29,7 +31,7 @@ func createTransition(from string, to string, timestamp time.Time) domain.Transi
 }
 
 func dirtyDate(dateString string) time.Time {
-	date, err := time.Parse("2006-01-02T15:04:05", dateString)
+	date, err := time.Parse(SimpleDateFormat, dateString)
 	if err != nil {
 		panic(err)
 	}

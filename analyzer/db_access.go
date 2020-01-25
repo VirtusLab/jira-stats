@@ -13,8 +13,8 @@ import (
 	"time"
 )
 
-const CONFIG_TABLE = "Config"
-const TICKET_TABLE = "Ticket"
+const ConfigTable = "Config"
+const TicketTable = "Ticket"
 
 // Fetch all tickets that had dev start time before given date
 
@@ -49,7 +49,7 @@ func fetchTicketsWithDevStartTimeBefore(devStartDate time.Time, devEndDate time.
 		ExpressionAttributeNames:  expr.Names(),
 		ExpressionAttributeValues: expr.Values(),
 		FilterExpression:          expr.Filter(),
-		TableName:                 aws.String(TICKET_TABLE),
+		TableName:                 aws.String(TicketTable),
 	}
 
 	queryResults, err := svc.Scan(&queryInput)
@@ -97,7 +97,7 @@ func delete(sess *session.Session, ticketId string) error {
 				S: aws.String(ticketId),
 			},
 		},
-		TableName: aws.String(TICKET_TABLE),
+		TableName: aws.String(TicketTable),
 	}
 
 	_, err := svc.DeleteItem(&input)
@@ -118,7 +118,7 @@ func insert(sess *session.Session, ticket domain.Ticket) error {
 
 	input := dynamodb.PutItemInput{
 		Item:      item,
-		TableName: aws.String(TICKET_TABLE),
+		TableName: aws.String(TicketTable),
 	}
 	_, err = svc.PutItem(&input)
 	if err != nil {
@@ -137,7 +137,7 @@ func storeLastUpdate(updateTime time.Time) error {
 		return tracerr.Wrap(err)
 	}
 
-	if prevUpdate != domain.BEGINING_OF_TIME {
+	if prevUpdate != domain.BeginingOfTime {
 		input := &dynamodb.UpdateItemInput{
 			ExpressionAttributeValues: map[string]*dynamodb.AttributeValue{
 				":w": {
@@ -150,7 +150,7 @@ func storeLastUpdate(updateTime time.Time) error {
 				},
 			},
 			ReturnValues:     aws.String("UPDATED_NEW"),
-			TableName:        aws.String(CONFIG_TABLE),
+			TableName:        aws.String(ConfigTable),
 			UpdateExpression: aws.String("set ConfigValue = :w"),
 		}
 		output, err := svc.UpdateItem(input)
@@ -171,7 +171,7 @@ func storeLastUpdate(updateTime time.Time) error {
 
 		input := dynamodb.PutItemInput{
 			Item:      item,
-			TableName: aws.String(CONFIG_TABLE),
+			TableName: aws.String(ConfigTable),
 		}
 
 		_, err = svc.PutItem(&input)
@@ -194,7 +194,7 @@ func getLastUpdate() (time.Time, error) {
 			},
 		},
 
-		TableName: aws.String(CONFIG_TABLE),
+		TableName: aws.String(ConfigTable),
 	})
 	if err != nil {
 		return time.Now(), tracerr.Wrap(err)

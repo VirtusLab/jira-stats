@@ -21,11 +21,13 @@ func GetCsv(startDate time.Time, endDate time.Time) (*domain.CsvContents, error)
 
 	rows := make([]domain.CsvRow, 0)
 
+	calculator := domain.DaysCalculator{}
+
 	for _, ticket := range ticketsWithDevBefore {
 		rows = append(rows, domain.CsvRow{
 			Entries: []string{
 				ticket.Key, ticket.Type, csvEscape(ticket.Title), ticket.Project(),
-				strconv.FormatFloat(domain.CalculateDevDays(ticket, startDate, endDate), 'f', 2, 64),
+				strconv.FormatFloat(calculator.CalculateDevDays(ticket, startDate, endDate), 'f', 2, 64),
 			},
 		})
 	}

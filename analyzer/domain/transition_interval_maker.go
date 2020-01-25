@@ -28,7 +28,7 @@ func MakeIntervals(ticket Ticket, transitions ...Transition) []TransitionInterva
 
 	intervals = append(intervals, TransitionInterval{
 		Start: startTime,
-		End:   END_OF_TIME,
+		End:   EndOfTime,
 		State: ticket.State,
 	})
 

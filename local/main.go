@@ -13,9 +13,9 @@ func main() {
 	//if err != nil {
 	//	tracerr.PrintSourceColor(err)
 	//}
-	//
-	start, _ := time.Parse(domain.DayFormat, "2019-10-01")
-	end, _ := time.Parse(domain.DayFormat, "2019-12-31")
+
+	start, _ := time.Parse(domain.DayFormat, "2020-01-01")
+	end, _ := time.Parse(domain.DayFormat, "2020-03-31")
 	csv, err := analyzer.GetCsv(start, end)
 	if err != nil {
 		tracerr.PrintSourceColor(err)

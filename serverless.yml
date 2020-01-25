@@ -27,7 +27,7 @@ provider:
   runtime: go1.x
   region: eu-west-1
   deploymentBucket:
-    name: com.virtuslab.jira-stats.lambdas
+    name: com.virtuslab.adstream.jira-stats.lambdas
 
   iamRoleStatements:
     - Effect: Allow
