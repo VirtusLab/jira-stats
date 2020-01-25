@@ -7,10 +7,10 @@ BUILDTAGS :=
 
 init:
 	@echo "Initializing this Makefile dependencies..."
-	go get -u github.com/golang/dep/cmd/dep
+	go mod vendor -v
 
 build:
-	dep ensure -v
+	@echo "Building..."
 	env GOOS=linux go build -ldflags="-s -w" -o ./bin/lambda_get ./lambda_get/main.go
 	env GOOS=linux go build -ldflags="-s -w" -o ./bin/lambda_fetch_data ./lambda_fetch_data/main.go
 
