@@ -38,8 +38,8 @@ jobs:
       run:  make build
 
     - name: Tests
-        env:
-          JIRA_USER: ${{ secrets.JIRA_USER }}
-          JIRA_PASSWORD: ${{ secrets.JIRA_PASSWORD }}
+      env:
+        JIRA_USER: ${{ secrets.JIRA_USER }}
+        JIRA_PASSWORD: ${{ secrets.JIRA_PASSWORD }}
       run: make tests
 
