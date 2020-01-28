@@ -114,8 +114,8 @@ func BuildModel(jiraIssues []jira.Issue) ([]domain.Ticket, error) {
 
 		updateString := domainTicket.UpdateTime.Format(time.RFC3339)
 
-		log.Printf("Ticket: %s, key: %s, no of transitions: %d (updated at %s)",
-			domainTicket.Id, domainTicket.Key, len(domainTicket.Transitions), updateString)
+		log.Printf("Ticket: %s, key: %s, no of changes: %d (updated at %s)",
+			domainTicket.Id, domainTicket.Key, len(domainTicket.ChangelogEntries), updateString)
 
 		domainTickets = append(domainTickets, domainTicket)
 	}

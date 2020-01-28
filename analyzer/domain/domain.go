@@ -1,7 +1,7 @@
 package domain
 
 import (
-	"fmt"
+	//"fmt"
 	"github.com/andygrunwald/go-jira"
 	"github.com/ztrue/tracerr"
 	"strings"
@@ -18,14 +18,14 @@ const JiraFilterFormat = "2006-01-02 15:04"
 const DayFormat = "2006-01-02"
 
 type Ticket struct {
-	Id          string
-	Key         string
-	State       string
-	Type        string
-	Title       string
-	Transitions []TransitionInterval
-	UpdateTime  time.Time
-	CreateTime  time.Time
+	Id               string
+	Key              string
+	State            string
+	Type             string
+	Title            string
+	ChangelogEntries []ChangelogEntry
+	UpdateTime       time.Time
+	CreateTime       time.Time
 
 	DevStartDate int64
 	DevEndDate   int64
@@ -36,23 +36,34 @@ func (t *Ticket) Project() string {
 	return t.Key[0:dashIdx]
 }
 
-type Transition struct {
-	FromState string
-	ToState   string
-	Timestamp time.Time
-	Author    string
+type ChangelogEntry struct {
+	Id      string
+	Author  string
+	Created time.Time
+	Changes []Change
 }
 
-type TransitionInterval struct {
-	Start  time.Time
-	End    time.Time
-	State  string
-	Author string
+func CreateChangelogEntry(id string, author string, timestamp time.Time, changes ...Change) ChangelogEntry {
+	return ChangelogEntry{
+		Id:      id,
+		Author:  author,
+		Created: timestamp,
+		Changes: changes,
+	}
 }
 
-func (t *TransitionInterval) ToString() string {
-	return fmt.Sprintf("TransitionInterval [Start: %s, End: %s, State: %s, Author: %s]",
-		t.Start.Format(time.RFC3339), t.End.Format(time.RFC3339), t.State, t.Author)
+type Change struct {
+	Field string
+	From  string
+	To    string
+}
+
+func CreateChange(field string, from string, to string) Change {
+	return Change{
+		Field: field,
+		From:  from,
+		To:    to,
+	}
 }
 
 type ConfigItem struct {
@@ -83,12 +94,14 @@ func (csv CsvContents) ToString() string {
 
 func JiraToDomain(jiraIssue jira.Issue) (Ticket, error) {
 
-	transitions := make([]Transition, 0)
+	changeslogEntries := make([]ChangelogEntry, 0)
 
 	devStartDate := EndOfTime
 	devEndDate := BeginingOfTime
 
 	for _, historyItem := range jiraIssue.Changelog.Histories {
+		changes := make([]Change, 0)
+
 		for _, changeItem := range historyItem.Items {
 			if strings.ToLower(changeItem.Field) == "status" {
 
@@ -97,11 +110,10 @@ func JiraToDomain(jiraIssue jira.Issue) (Ticket, error) {
 					return Ticket{}, tracerr.Wrap(err)
 				}
 
-				transitions = append(transitions, Transition{
-					FromState: changeItem.FromString,
-					ToState:   changeItem.ToString,
-					Timestamp: timestamp,
-					Author:    historyItem.Author.Name,
+				changes = append(changes, Change{
+					From:  changeItem.FromString,
+					To:    changeItem.ToString,
+					Field: changeItem.Field,
 				})
 
 				if changeItem.ToString == "In Development" && devStartDate.After(timestamp) {
@@ -111,6 +123,12 @@ func JiraToDomain(jiraIssue jira.Issue) (Ticket, error) {
 				if changeItem.FromString == "In Development" && devEndDate.Before(timestamp) {
 					devEndDate = timestamp
 				}
+			}
+
+			changeLogEntry, err := buildChangelogEntry(historyItem, changes)
+			changeslogEntries = append(changeslogEntries, changeLogEntry)
+			if err != nil {
+				return Ticket{}, tracerr.Wrap(err)
 			}
 		}
 	}
@@ -136,12 +154,27 @@ func JiraToDomain(jiraIssue jira.Issue) (Ticket, error) {
 		UpdateTime: updateTime,
 		CreateTime: createdTime,
 
+		ChangelogEntries: changeslogEntries,
+
 		DevStartDate: devStartDate.Unix(),
 		DevEndDate:   devEndDate.Unix(),
 	}
 
-	ticket.Transitions = MakeIntervals(ticket, transitions...)
 	return ticket, nil
+}
+
+func buildChangelogEntry(historyItem jira.ChangelogHistory, changes []Change) (ChangelogEntry, error) {
+	changeTime, err := historyItem.CreatedTime()
+	if err != nil {
+		return ChangelogEntry{}, tracerr.Wrap(err)
+	}
+
+	return ChangelogEntry{
+		Id:      historyItem.Id,
+		Author:  historyItem.Author.Name,
+		Created: changeTime,
+		Changes: changes,
+	}, nil
 }
 
 func unmarshalDatetime(field jira.Time) (time.Time, error) {

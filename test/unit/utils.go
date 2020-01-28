@@ -7,27 +7,38 @@ import (
 
 const SimpleDateFormat = "2006-01-02T15:04:05"
 
-func createTicket(status string, createTime time.Time, transitions ...domain.TransitionInterval) domain.Ticket {
+func createTicket(status string, createTime time.Time, changelogEntries ...domain.ChangelogEntry) domain.Ticket {
 	return domain.Ticket{
-		Id:           "Ticket-532",
-		Key:          "Ticket-532",
-		Title:        "Random title",
-		Transitions:  transitions,
-		UpdateTime:   domain.BeginingOfTime,
-		CreateTime:   createTime,
-		State:        status,
-		DevStartDate: -1,
-		DevEndDate:   -1,
+		Id:               "Ticket-532",
+		Key:              "Ticket-532",
+		Title:            "Random title",
+		ChangelogEntries: changelogEntries,
+		UpdateTime:       domain.BeginingOfTime,
+		CreateTime:       createTime,
+		State:            status,
+		DevStartDate:     -1,
+		DevEndDate:       -1,
 	}
 }
 
-func createTransition(from string, to string, timestamp time.Time) domain.Transition {
+func createChangeLogEntries(entries ...domain.ChangelogEntry) []domain.ChangelogEntry {
+	return entries
+}
 
-	return domain.Transition{
-		FromState: from,
-		ToState:   to,
-		Timestamp: timestamp,
-	}
+func createChangelogEntry(author string, timestamp time.Time, changes ...domain.Change) domain.ChangelogEntry {
+	return domain.CreateChangelogEntry(
+		"random", author, timestamp, changes...,
+	)
+}
+
+func simpleChangelogEntry(field string, prevValue string, newValue string, timestamp time.Time) domain.ChangelogEntry {
+	return domain.CreateChangelogEntry(
+		"random", "randomAuthor", timestamp, domain.CreateChange(field, prevValue, newValue),
+	)
+}
+
+func statusChangelogEntry(prevValue string, newValue string, timestamp time.Time) domain.ChangelogEntry {
+	return simpleChangelogEntry("status", prevValue, newValue, timestamp)
 }
 
 func dirtyDate(dateString string) time.Time {
