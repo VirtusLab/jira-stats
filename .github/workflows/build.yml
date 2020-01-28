@@ -16,21 +16,6 @@ jobs:
     - name: Check out code into the Go module directory
       uses: actions/checkout@v1
 
-#    - name: Set dirs
-#      run: |
-#        echo $HOME
-#        echo $GOBIN
-#        echo $GOPATH
-#        export GOPATH=$HOME/go
-#        export GOBIN=$(go env GOPATH)/bin
-#        export PATH=$PATH:$GOPATH
-#        export PATH=$PATH:$GOBIN
-#        mkdir -p $GOPATH/pkg
-#        mkdir -p $GOBIN
-#        #mkdir -p $GOPATH/src/github.com/$GITHUB_REPOSITORY
-#        #mv $(pwd)/* $GOPATH/src/github.com/$GITHUB_REPOSITORY
-#        #cd $GOPATH/src/github.com/$GITHUB_REPOSITORY
-
     - name: Get dependencies
       run: make init
 
