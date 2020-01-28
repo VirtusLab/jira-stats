@@ -1,0 +1,45 @@
+name: Go
+on: [push]
+jobs:
+
+  build:
+    name: Build
+    runs-on: ubuntu-latest
+    steps:
+
+    - name: Set up Go 1.13
+      uses: actions/setup-go@v1
+      with:
+        go-version: 1.13
+      id: go
+
+    - name: Check out code into the Go module directory
+      uses: actions/checkout@v1
+
+#    - name: Set dirs
+#      run: |
+#        echo $HOME
+#        echo $GOBIN
+#        echo $GOPATH
+#        export GOPATH=$HOME/go
+#        export GOBIN=$(go env GOPATH)/bin
+#        export PATH=$PATH:$GOPATH
+#        export PATH=$PATH:$GOBIN
+#        mkdir -p $GOPATH/pkg
+#        mkdir -p $GOBIN
+#        #mkdir -p $GOPATH/src/github.com/$GITHUB_REPOSITORY
+#        #mv $(pwd)/* $GOPATH/src/github.com/$GITHUB_REPOSITORY
+#        #cd $GOPATH/src/github.com/$GITHUB_REPOSITORY
+
+    - name: Get dependencies
+      run: make init
+
+    - name: Build
+      run:  make build
+
+    - name: Tests
+      env:
+        JIRA_USER: ${{ secrets.JIRA_USER }}
+        JIRA_PASSWORD: ${{ secrets.JIRA_PASSWORD }}
+      run: make tests
+
