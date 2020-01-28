@@ -8,10 +8,12 @@ import (
 
 func TestSimpleTransition(t *testing.T) {
 	ticket := createTicket("In Review", dirtyDate("2018-01-01T00:00:00"))
-	transitions := domain.MakeIntervals(ticket,
-		createTransition("To Do", "In Development", dirtyDate("2018-01-02T00:00:00")),
-		createTransition("In Development", "In Review", dirtyDate("2018-02-05T23:59:59")),
+	ticket.ChangelogEntries = createChangeLogEntries(
+		statusChangelogEntry("To Do", "In Development", dirtyDate("2018-01-02T00:00:00")),
+		statusChangelogEntry("In Development", "In Review", dirtyDate("2018-02-05T23:59:59")),
 	)
+	transitions := domain.MakeIntervals(ticket)
+
 	assert.Equal(t, len(transitions), 3, "Number of generated intervals incorrect")
 
 	assert.Equal(t, transitions[0], domain.TransitionInterval{

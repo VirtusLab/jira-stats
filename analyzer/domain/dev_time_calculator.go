@@ -5,6 +5,7 @@ import (
 	"time"
 )
 
+const StatusField = "status"
 const StateDev = "In Development"
 
 type Now func() time.Time
@@ -32,8 +33,10 @@ func (this *DaysCalculator) CalculateDevDays(ticket Ticket, start time.Time, end
 		return 0.0
 	}
 
-	for _, transition := range ticket.Transitions {
-		devTime := this.calculateDevTime(transition, start, end)
+	intervals := MakeIntervals(ticket)
+
+	for _, interval := range intervals {
+		devTime := this.calculateDevTime(interval, start, end)
 		cumulativeTime += devTime
 	}
 

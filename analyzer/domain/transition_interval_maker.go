@@ -1,13 +1,36 @@
 package domain
 
 import (
+	"errors"
+	"fmt"
 	"sort"
+	"strings"
+	"time"
 )
 
-func MakeIntervals(ticket Ticket, transitions ...Transition) []TransitionInterval {
+type Transition struct {
+	prevState string
+	newState  string
+	timestamp time.Time
+}
+
+type TransitionInterval struct {
+	Start time.Time
+	End   time.Time
+	State string
+}
+
+func (t *TransitionInterval) ToString() string {
+	return fmt.Sprintf("TransitionInterval [Start: %s, End: %s, State: %s]",
+		t.Start.Format(time.RFC3339), t.End.Format(time.RFC3339), t.State)
+}
+
+func MakeIntervals(ticket Ticket) []TransitionInterval {
+	transitions := extractStateChanges(ticket.ChangelogEntries)
+
 	// make sure transition points are sorted in asc order (timestamp wise)
 	sort.Slice(transitions, func(i, j int) bool {
-		return transitions[i].Timestamp.Before(transitions[j].Timestamp)
+		return transitions[i].timestamp.Before(transitions[j].timestamp)
 	})
 
 	var intervals []TransitionInterval
@@ -15,15 +38,14 @@ func MakeIntervals(ticket Ticket, transitions ...Transition) []TransitionInterva
 
 	for _, t := range transitions {
 		currentTransition := TransitionInterval{
-			Start:  startTime,
-			End:    t.Timestamp,
-			State:  t.FromState,
-			Author: t.Author,
+			Start: startTime,
+			End:   t.timestamp,
+			State: t.prevState,
 		}
 
 		intervals = append(intervals, currentTransition)
 
-		startTime = t.Timestamp
+		startTime = t.timestamp
 	}
 
 	intervals = append(intervals, TransitionInterval{
@@ -33,4 +55,27 @@ func MakeIntervals(ticket Ticket, transitions ...Transition) []TransitionInterva
 	})
 
 	return intervals
+}
+
+func extractStateChanges(changeLogEntries []ChangelogEntry) []Transition {
+	transitions := make([]Transition, 0)
+
+	for _, entry := range changeLogEntries {
+		change, err := getStatusChange(entry)
+		if err == nil {
+			transitions = append(transitions, Transition{change.From, change.To, entry.Created})
+		}
+	}
+
+	return transitions
+}
+
+func getStatusChange(changeLogEntry ChangelogEntry) (Change, error) {
+	for _, change := range changeLogEntry.Changes {
+		if strings.ToLower(change.Field) == StatusField {
+			return change, nil
+		}
+	}
+
+	return Change{}, errors.New("No Status transition available in this changelog entry")
 }
