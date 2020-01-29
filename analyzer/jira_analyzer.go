@@ -72,7 +72,7 @@ func processLoop(batchCount int) (int, error) {
 }
 
 func transformToModel(jiraTickets []jira.Issue) (tickets []domain.Ticket, err error) {
-	defer timeTrack(time.Now(), fmt.Sprintf("Converting %d tickets to model", len(jiraTickets)))
+	defer timeTrackParams(time.Now(), "Converting tickets to model", map[string]string{"number": string(len(tickets))})
 
 	tickets, err = BuildModel(jiraTickets)
 	if err != nil {
@@ -83,7 +83,7 @@ func transformToModel(jiraTickets []jira.Issue) (tickets []domain.Ticket, err er
 }
 
 func storeTickets(tickets []domain.Ticket) (lastUpdateTime time.Time, err error) {
-	defer timeTrack(time.Now(), fmt.Sprintf("Storing %d tickets", len(tickets)))
+	defer timeTrackParams(time.Now(), "Storing tickets", map[string]string{"number": string(len(tickets))})
 
 	mostRecentUpdate := domain.BeginingOfTime
 	// stores new model

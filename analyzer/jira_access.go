@@ -13,7 +13,7 @@ import (
 
 // fetches tickets from analyzer
 func fetch(updatedSince time.Time, batchCount int) ([]jira.Issue, error) {
-	defer timeTrack(time.Now(), "Fetching Jira issues")
+	defer TimeTrack(time.Now(), "Fetching Jira issues")
 
 	tp, err := jiraAuth()
 	if err != nil {

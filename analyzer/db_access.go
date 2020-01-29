@@ -1,7 +1,6 @@
 package analyzer
 
 import (
-	"fmt"
 	"github.com/VirtusLab/jira-stats/analyzer/domain"
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/session"
@@ -19,7 +18,7 @@ const TicketTable = "Ticket"
 // Fetch all tickets that had dev start time before given date
 
 func fetchTicketsWithDevStartTimeBefore(devStartDate time.Time, devEndDate time.Time) ([]domain.Ticket, error) {
-	defer timeTrack(time.Now(), fmt.Sprintf("DB scan for (%s, %s)", devStartDate.Format(time.RFC3339), devEndDate.Format(time.RFC3339)))
+	defer timeTrackParams(time.Now(), "DB scan", map[string]string{"start": devStartDate.Format(time.RFC3339), "end": devEndDate.Format(time.RFC3339)})
 
 	sess := session.Must(session.NewSession())
 	svc := dynamodb.New(sess)

@@ -11,6 +11,8 @@ import (
 
 // Generates CSV contents from DB
 func GetCsv(startDate time.Time, endDate time.Time) (*domain.CsvContents, error) {
+	defer TimeTrack(time.Now(), "CSV Generated")
+
 	log.Printf("Fetching tickets for dev time between (%s, %s)\n", startDate.Format(time.RFC3339), endDate.Format(time.RFC3339))
 
 	ticketsWithDevBefore, err := fetchTicketsWithDevStartTimeBefore(startDate, endDate)
