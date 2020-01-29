@@ -1,5 +1,5 @@
 # jira-stats
-[![Travis CI](https://img.shields.io/travis/VirtusLab/jira-stats.svg)](https://travis-ci.org/VirtusLab/render)
+[![Github Build Action](https://github.com/VirtusLab-OSS/jira-stats/workflows/Build%20%26%20Test/badge.svg)](https://github.com/VirtusLab-OSS/jira-stats/actions?query=workflow%3A%22Build+%26+Test%22)
 
 Simple tool to fetching Jira tickets and genereting CSV for reporting purposes.
 
