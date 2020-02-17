@@ -8,6 +8,7 @@ import (
 )
 
 const StatusField = "status"
+const FlagField = "flagged"
 
 const StateDev = "In Development"
 
@@ -33,6 +34,7 @@ type DaysCalculator struct {
 	- if DEV started ticket before noon - whole day is going to be counted for that day
 	- if DEV started ticket after noon - day would be counted as half (0.5)
     - if DEV started and moved ticket further at the same day - number of ours would be rounded to nearest multiplication of 0.25 of day (2 hours)
+	- below 15 mins is rounded to 0
 	- weekends are not counted
 */
 func (this *DaysCalculator) CalculateDevDays(ticket Ticket, start time.Time, end time.Time) float64 {
@@ -83,7 +85,9 @@ func (this *DaysCalculator) calculateDevTime(interval TransitionInterval, start 
 
 	diff := interval.End.Sub(interval.Start)
 
-	if diff.Minutes() <= 2*60 {
+	if diff.Minutes() <= 15 {
+		return 0
+	} else if diff.Minutes() <= 2*60 {
 		return 2
 	} else if diff.Minutes() <= 4*60 {
 		return 4
