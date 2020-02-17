@@ -6,6 +6,7 @@ import (
 	"github.com/andygrunwald/go-jira"
 	"github.com/ztrue/tracerr"
 	"log"
+	"strconv"
 	"time"
 )
 
@@ -72,7 +73,7 @@ func processLoop(batchCount int) (int, error) {
 }
 
 func transformToModel(jiraTickets []jira.Issue) (tickets []domain.Ticket, err error) {
-	defer timeTrackParams(time.Now(), "Converting tickets to model", map[string]string{"number": string(len(tickets))})
+	defer timeTrackParams(time.Now(), "Converting tickets to model", map[string]string{"number": strconv.Itoa(len(tickets))})
 
 	tickets, err = BuildModel(jiraTickets)
 	if err != nil {
@@ -83,7 +84,7 @@ func transformToModel(jiraTickets []jira.Issue) (tickets []domain.Ticket, err er
 }
 
 func storeTickets(tickets []domain.Ticket) (lastUpdateTime time.Time, err error) {
-	defer timeTrackParams(time.Now(), "Storing tickets", map[string]string{"number": string(len(tickets))})
+	defer timeTrackParams(time.Now(), "Storing tickets", map[string]string{"number": strconv.Itoa(len(tickets))})
 
 	mostRecentUpdate := domain.BeginingOfTime
 	// stores new model
@@ -93,7 +94,7 @@ func storeTickets(tickets []domain.Ticket) (lastUpdateTime time.Time, err error)
 			return time.Time{}, err
 		}
 
-		updateTime := ticket.UpdateTime
+		updateTime := time.Unix(ticket.UpdateTime, 0)
 
 		if mostRecentUpdate.Before(updateTime) {
 			mostRecentUpdate = updateTime
@@ -112,7 +113,7 @@ func BuildModel(jiraIssues []jira.Issue) ([]domain.Ticket, error) {
 			return nil, err
 		}
 
-		updateString := domainTicket.UpdateTime.Format(time.RFC3339)
+		updateString := time.Unix(domainTicket.UpdateTime, 0).Format(time.RFC3339)
 
 		log.Printf("Ticket: %s, key: %s, no of changes: %d (updated at %s)",
 			domainTicket.Id, domainTicket.Key, len(domainTicket.ChangelogEntries), updateString)

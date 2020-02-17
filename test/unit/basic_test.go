@@ -12,7 +12,9 @@ import (
 
 // History with no state transition
 func TestCorrectAssignmentForNoTransition(t *testing.T) {
+	createTime, _ := time.Parse(domain.JiraTimestampFormat, "2006-01-01T13:04:05.000-0700")
 	issue := createJiraIssue(
+		createTime,
 		changeLog(
 			[]jira.ChangelogHistory{
 				changeLogHistoryItem(
@@ -32,13 +34,14 @@ func TestCorrectAssignmentForNoTransition(t *testing.T) {
 	}
 
 	assert.Equal(t, len(tickets), 1, "There should be one analyzer ticket created")
-	assert.Equal(t, tickets[0].DevStartDate, domain.EndOfTime.Unix(), "Start date should not be set")
-	assert.Equal(t, tickets[0].DevEndDate, domain.BeginingOfTime.Unix(), "End date should not be set")
+	assert.Equal(t, createTime.Unix(), tickets[0].CreateTime, "End date should not be set")
+	assert.Equal(t, domain.EndOfTime.Unix(), tickets[0].CloseTime, "End date should not be set")
 }
 
 // History array is empty
 func TestCorrectAssignmentForNoHistory(t *testing.T) {
 	issue := createJiraIssue(
+		dirtyDate("2006-01-01T13:04:05"),
 		changeLog(
 			[]jira.ChangelogHistory{},
 		),
@@ -51,13 +54,15 @@ func TestCorrectAssignmentForNoHistory(t *testing.T) {
 	}
 
 	assert.Equal(t, len(tickets), 1, "There should be one analyzer ticket created")
-	assert.Equal(t, tickets[0].DevStartDate, domain.EndOfTime.Unix(), "Start date should not be set")
-	assert.Equal(t, tickets[0].DevEndDate, domain.BeginingOfTime.Unix(), "End date should not be set")
+	assert.Equal(t, domain.EndOfTime.Unix(), tickets[0].CloseTime, "End date should not be set")
 }
 
 // simple history with one state transition
 func TestCorrectAssignmentForSimpleHistory(t *testing.T) {
+	createTime, _ := time.Parse(domain.JiraTimestampFormat, "2006-01-01T13:04:05.000-0700")
+
 	issue := createJiraIssue(
+		createTime,
 		changeLog(
 			[]jira.ChangelogHistory{
 				changeLogHistoryItem(
@@ -70,7 +75,7 @@ func TestCorrectAssignmentForSimpleHistory(t *testing.T) {
 					"2006-01-02T15:04:05.000-0700",
 					[]jira.ChangelogItems{
 						changeLogItem("Description", "Prev", "Current"),
-						changeLogItem("Status", "To Do", "In Development"),
+						changeLogItem("Status", "To Do", "Closed"),
 					},
 				),
 				changeLogHistoryItem(
@@ -87,16 +92,14 @@ func TestCorrectAssignmentForSimpleHistory(t *testing.T) {
 		t.Errorf("Found error: %s", err.Error())
 	}
 
-	startDate, _ := time.Parse(domain.JiraTimestampFormat, "2006-01-02T15:04:05.000-0700")
-	endDate, _ := time.Parse(domain.JiraTimestampFormat, "2006-02-02T15:04:05.000-0700")
-
-	assert.Equal(t, tickets[0].DevStartDate, startDate.Unix(), "Start date should be set correctly")
-	assert.Equal(t, tickets[0].DevEndDate, endDate.Unix(), "End date should be set correctly")
+	assert.Equal(t, createTime.Unix(), tickets[0].CreateTime, "Create date should be set correctly")
+	assert.Equal(t, domain.EndOfTime.Unix(), tickets[0].CloseTime, "End date should be set correctly")
 }
 
 // two "In Dev" state transitions and some other non-dev related, also order is mixed
 func TestCorrectAssignmentForComplicatedHistory(t *testing.T) {
 	issue := createJiraIssue(
+		dirtyDate("2006-01-01T13:04:05"),
 		changeLog(
 			[]jira.ChangelogHistory{
 				changeLogHistoryItem(
@@ -108,7 +111,7 @@ func TestCorrectAssignmentForComplicatedHistory(t *testing.T) {
 				),
 				changeLogHistoryItem(
 					"2006-02-02T15:04:05.000-0700",
-					[]jira.ChangelogItems{changeLogItem("Status", "In Development", "Ready For Testing")},
+					[]jira.ChangelogItems{changeLogItem("Status", "In Development", "On Live")},
 				),
 				changeLogHistoryItem(
 					"2005-06-03T15:04:05.000-0700",
@@ -128,11 +131,8 @@ func TestCorrectAssignmentForComplicatedHistory(t *testing.T) {
 		t.Errorf("Found error: %s", err.Error())
 	}
 
-	startDate, _ := time.Parse(domain.JiraTimestampFormat, "2005-06-03T15:04:05.000-0700")
-	endDate, _ := time.Parse(domain.JiraTimestampFormat, "2006-02-02T15:04:05.000-0700")
-
-	assert.Equal(t, tickets[0].DevStartDate, startDate.Unix(), "Start date should be set correctly")
-	assert.Equal(t, tickets[0].DevEndDate, endDate.Unix(), "End date should be set correctly")
+	endTime, _ := time.Parse(domain.JiraTimestampFormat, "2006-02-02T15:04:05.000-0700")
+	assert.Equal(t, endTime.Unix(), tickets[0].CloseTime, "End date should be set correctly")
 }
 
 // two "In Dev" with other state in-between
@@ -141,6 +141,7 @@ func TestTwoInDevStates(t *testing.T) {
 	lastInDevTransitionOut := "2006-05-12T15:04:05.000-0700"
 
 	issue := createJiraIssue(
+		dirtyDate("2006-01-01T13:04:05"),
 		changeLog(
 			[]jira.ChangelogHistory{
 				changeLogHistoryItem(
@@ -163,7 +164,7 @@ func TestTwoInDevStates(t *testing.T) {
 				),
 				changeLogHistoryItem( // and another state again
 					lastInDevTransitionOut,
-					[]jira.ChangelogItems{changeLogItem("Status", "In Development", "Testing")},
+					[]jira.ChangelogItems{changeLogItem("Status", "In Development", "Closed")},
 				),
 			},
 		),
@@ -175,14 +176,11 @@ func TestTwoInDevStates(t *testing.T) {
 		t.Errorf("Found error: %s", err.Error())
 	}
 
-	startDate, _ := time.Parse(domain.JiraTimestampFormat, firstInDevTransitionIn)
 	endDate, _ := time.Parse(domain.JiraTimestampFormat, lastInDevTransitionOut)
-
-	assert.Equal(t, tickets[0].DevStartDate, startDate.Unix(), "Start date should be set correctly")
-	assert.Equal(t, tickets[0].DevEndDate, endDate.Unix(), "End date should be set correctly")
+	assert.Equal(t, endDate.Unix(), tickets[0].CloseTime, "End date should be set correctly")
 }
 
-func createJiraIssue(changeLog jira.Changelog) jira.Issue {
+func createJiraIssue(createTime time.Time, changeLog jira.Changelog) jira.Issue {
 	return jira.Issue{
 		ID:  "11232",
 		Key: "ABC-112",
@@ -191,6 +189,7 @@ func createJiraIssue(changeLog jira.Changelog) jira.Issue {
 			Status: &jira.Status{
 				Name: "To Do",
 			},
+			Created: jira.Time(createTime),
 		},
 		Changelog: &changeLog,
 	}

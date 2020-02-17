@@ -24,11 +24,12 @@ type Ticket struct {
 	Type             string
 	Title            string
 	ChangelogEntries []ChangelogEntry
-	UpdateTime       time.Time
-	CreateTime       time.Time
 
-	DevStartDate int64
-	DevEndDate   int64
+	UpdateTime int64
+	CreateTime int64
+	CloseTime  int64
+
+	PrimaryDev string
 }
 
 func (t *Ticket) Project() string {
@@ -96,33 +97,16 @@ func JiraToDomain(jiraIssue jira.Issue) (Ticket, error) {
 
 	changeslogEntries := make([]ChangelogEntry, 0)
 
-	devStartDate := EndOfTime
-	devEndDate := BeginingOfTime
-
 	for _, historyItem := range jiraIssue.Changelog.Histories {
 		changes := make([]Change, 0)
 
 		for _, changeItem := range historyItem.Items {
 			if strings.ToLower(changeItem.Field) == "status" {
-
-				timestamp, err := time.Parse(JiraTimestampFormat, historyItem.Created)
-				if err != nil {
-					return Ticket{}, tracerr.Wrap(err)
-				}
-
 				changes = append(changes, Change{
 					From:  changeItem.FromString,
 					To:    changeItem.ToString,
 					Field: changeItem.Field,
 				})
-
-				if changeItem.ToString == "In Development" && devStartDate.After(timestamp) {
-					devStartDate = timestamp
-				}
-
-				if changeItem.FromString == "In Development" && devEndDate.Before(timestamp) {
-					devEndDate = timestamp
-				}
 			}
 
 			changeLogEntry, err := buildChangelogEntry(historyItem, changes)
@@ -151,16 +135,32 @@ func JiraToDomain(jiraIssue jira.Issue) (Ticket, error) {
 		Title:      jiraIssue.Fields.Summary,
 		Type:       jiraIssue.Fields.Type.Name,
 		State:      state,
-		UpdateTime: updateTime,
-		CreateTime: createdTime,
+		UpdateTime: updateTime.Unix(),
+		CreateTime: createdTime.Unix(),
+		CloseTime:  EndOfTime.Unix(),
+
+		PrimaryDev: getPrimaryDev(jiraIssue),
 
 		ChangelogEntries: changeslogEntries,
-
-		DevStartDate: devStartDate.Unix(),
-		DevEndDate:   devEndDate.Unix(),
 	}
 
+	calculator := DaysCalculator{}
+	closeTime := calculator.CalculateCloseDate(ticket)
+	ticket.CloseTime = closeTime.Unix()
+
 	return ticket, nil
+}
+
+func getPrimaryDev(jiraIssue jira.Issue) string {
+	const PrimaryDevFiraField = "customfield_12202"
+
+	var primaryDev string
+	primaryDevObj, _ := jiraIssue.Fields.Unknowns[PrimaryDevFiraField]
+	if primaryDevObj != nil {
+		devMap := primaryDevObj.(map[string]interface{})
+		primaryDev = devMap["key"].(string)
+	}
+	return primaryDev
 }
 
 func buildChangelogEntry(historyItem jira.ChangelogHistory, changes []Change) (ChangelogEntry, error) {

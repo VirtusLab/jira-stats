@@ -2,11 +2,21 @@ package domain
 
 import (
 	"log"
+	"sort"
+	"strings"
 	"time"
 )
 
 const StatusField = "status"
+
 const StateDev = "In Development"
+
+const StateClosed = "Closed"
+const StateOnLive = "On live"
+
+var StatesClosed = [...]string{
+	strings.ToLower(StateClosed), strings.ToLower(StateOnLive),
+}
 
 type Now func() time.Time
 
@@ -41,6 +51,20 @@ func (this *DaysCalculator) CalculateDevDays(ticket Ticket, start time.Time, end
 	}
 
 	return float64(cumulativeTime) / 8.0
+}
+
+func (this *DaysCalculator) CalculateCloseDate(ticket Ticket) time.Time {
+	transitions := extractStateChanges(ticket.ChangelogEntries)
+
+	if len(transitions) > 0 {
+		finalTransition := transitions[len(transitions)-1]
+
+		if contains(StatesClosed[:], strings.ToLower(finalTransition.newState)) {
+			return finalTransition.timestamp
+		}
+	}
+
+	return EndOfTime
 }
 
 func (this *DaysCalculator) shouldSkipTicket(ticket Ticket) bool {
@@ -150,4 +174,9 @@ func (this *DaysCalculator) now() time.Time {
 	} else {
 		return time.Now()
 	}
+}
+
+func contains(s []string, searchterm string) bool {
+	i := sort.SearchStrings(s, searchterm)
+	return i < len(s) && s[i] == searchterm
 }

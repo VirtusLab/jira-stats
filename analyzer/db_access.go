@@ -15,9 +15,9 @@ import (
 const ConfigTable = "Config"
 const TicketTable = "Ticket"
 
-// Fetch all tickets that had dev start time before given date
+// Fetch all tickets that had CreateTime before given date
 
-func fetchTicketsWithDevStartTimeBefore(devStartDate time.Time, devEndDate time.Time) ([]domain.Ticket, error) {
+func fetchTicketActiveInGivenPeriod(devStartDate time.Time, devEndDate time.Time) ([]domain.Ticket, error) {
 	defer timeTrackParams(time.Now(), "DB scan", map[string]string{"start": devStartDate.Format(time.RFC3339), "end": devEndDate.Format(time.RFC3339)})
 
 	sess := session.Must(session.NewSession())
@@ -25,13 +25,13 @@ func fetchTicketsWithDevStartTimeBefore(devStartDate time.Time, devEndDate time.
 
 	filter :=
 		expression.Or(
-			expression.Or( // tickets that had dev time contained or overlapping with searched interval
-				expression.Between(expression.Name("DevStartDate"), expression.Value(devStartDate.Unix()), expression.Value(devEndDate.Unix())),
-				expression.Between(expression.Name("DevEndDate"), expression.Value(devStartDate.Unix()), expression.Value(devEndDate.Unix())),
+			expression.Or( // tickets that were active time (time between created & closed) contained or overlapping with searched interval
+				expression.Between(expression.Name("CreateTime"), expression.Value(devStartDate.Unix()), expression.Value(devEndDate.Unix())),
+				expression.Between(expression.Name("CloseTime"), expression.Value(devStartDate.Unix()), expression.Value(devEndDate.Unix())),
 			),
 			expression.And( // tickets that had dev time containing searched interval
-				expression.LessThanEqual(expression.Name("DevStartDate"), expression.Value(devStartDate.Unix())),
-				expression.GreaterThanEqual(expression.Name("DevEndDate"), expression.Value(devEndDate.Unix())),
+				expression.LessThanEqual(expression.Name("CreateTime"), expression.Value(devEndDate.Unix())),
+				expression.GreaterThanEqual(expression.Name("CloseTime"), expression.Value(devStartDate.Unix())),
 			),
 		)
 
@@ -44,18 +44,46 @@ func fetchTicketsWithDevStartTimeBefore(devStartDate time.Time, devEndDate time.
 		return nil, tracerr.Wrap(err)
 	}
 
+	totalTickets := make([]domain.Ticket, 0)
+	var tickets []domain.Ticket
+
+	for tickets, lastKey, err := scanTable(svc, nil, expr); lastKey != nil; tickets, lastKey, err = scanTable(svc, lastKey, expr) {
+
+		if err != nil {
+			return nil, tracerr.Wrap(err)
+		}
+
+		totalTickets = append(totalTickets, tickets...)
+	}
+	totalTickets = append(totalTickets, tickets...)
+
+	return totalTickets, nil
+}
+
+type LastKey map[string]*dynamodb.AttributeValue
+
+func scanTable(svc *dynamodb.DynamoDB, previousLastKey LastKey, expr expression.Expression) ([]domain.Ticket, LastKey, error) {
 	queryInput := dynamodb.ScanInput{
 		ExpressionAttributeNames:  expr.Names(),
 		ExpressionAttributeValues: expr.Values(),
 		FilterExpression:          expr.Filter(),
 		TableName:                 aws.String(TicketTable),
+		ExclusiveStartKey:         previousLastKey,
 	}
-
 	queryResults, err := svc.Scan(&queryInput)
 	if err != nil {
-		return nil, tracerr.Wrap(err)
+		return nil, nil, tracerr.Wrap(err)
 	}
 
+	lastKey := queryResults.LastEvaluatedKey
+	tickets, err := convertResultsToTickets(queryResults)
+	if err != nil {
+		return nil, nil, tracerr.Wrap(err)
+	}
+	return tickets, lastKey, err
+}
+
+func convertResultsToTickets(queryResults *dynamodb.ScanOutput) ([]domain.Ticket, error) {
 	tickets := make([]domain.Ticket, 0)
 	for _, result := range queryResults.Items {
 		var ticket domain.Ticket
@@ -66,7 +94,6 @@ func fetchTicketsWithDevStartTimeBefore(devStartDate time.Time, devEndDate time.
 
 		tickets = append(tickets, ticket)
 	}
-
 	return tickets, nil
 }
 

@@ -13,11 +13,10 @@ func createTicket(status string, createTime time.Time, changelogEntries ...domai
 		Key:              "Ticket-532",
 		Title:            "Random title",
 		ChangelogEntries: changelogEntries,
-		UpdateTime:       domain.BeginingOfTime,
-		CreateTime:       createTime,
+		UpdateTime:       domain.BeginingOfTime.Unix(),
+		CreateTime:       createTime.Unix(),
 		State:            status,
-		DevStartDate:     -1,
-		DevEndDate:       -1,
+		CloseTime:        domain.BeginingOfTime.Unix(),
 	}
 }
 

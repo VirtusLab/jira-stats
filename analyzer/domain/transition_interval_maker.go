@@ -28,13 +28,8 @@ func (t *TransitionInterval) ToString() string {
 func MakeIntervals(ticket Ticket) []TransitionInterval {
 	transitions := extractStateChanges(ticket.ChangelogEntries)
 
-	// make sure transition points are sorted in asc order (timestamp wise)
-	sort.Slice(transitions, func(i, j int) bool {
-		return transitions[i].timestamp.Before(transitions[j].timestamp)
-	})
-
 	var intervals []TransitionInterval
-	startTime := ticket.CreateTime
+	startTime := time.Unix(ticket.CreateTime, 0).UTC()
 
 	for _, t := range transitions {
 		currentTransition := TransitionInterval{
@@ -66,6 +61,11 @@ func extractStateChanges(changeLogEntries []ChangelogEntry) []Transition {
 			transitions = append(transitions, Transition{change.From, change.To, entry.Created})
 		}
 	}
+
+	// make sure transition points are sorted in asc order (timestamp wise)
+	sort.Slice(transitions, func(i, j int) bool {
+		return transitions[i].timestamp.Before(transitions[j].timestamp)
+	})
 
 	return transitions
 }

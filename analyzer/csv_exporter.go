@@ -15,7 +15,7 @@ func GetCsv(startDate time.Time, endDate time.Time) (*domain.CsvContents, error)
 
 	log.Printf("Fetching tickets for dev time between (%s, %s)\n", startDate.Format(time.RFC3339), endDate.Format(time.RFC3339))
 
-	ticketsWithDevBefore, err := fetchTicketsWithDevStartTimeBefore(startDate, endDate)
+	ticketsWithDevBefore, err := fetchTicketActiveInGivenPeriod(startDate, endDate)
 	if err != nil {
 		return &domain.CsvContents{}, tracerr.Wrap(err)
 	}
@@ -26,16 +26,22 @@ func GetCsv(startDate time.Time, endDate time.Time) (*domain.CsvContents, error)
 	calculator := domain.DaysCalculator{}
 
 	for _, ticket := range ticketsWithDevBefore {
+		devTime := calculator.CalculateDevDays(ticket, startDate, endDate)
+		if devTime == 0.0 {
+			continue
+		}
+
 		rows = append(rows, domain.CsvRow{
 			Entries: []string{
 				ticket.Key, ticket.Type, csvEscape(ticket.Title), ticket.Project(),
-				strconv.FormatFloat(calculator.CalculateDevDays(ticket, startDate, endDate), 'f', 2, 64),
+				strconv.FormatFloat(devTime, 'f', 2, 64),
+				ticket.PrimaryDev,
 			},
 		})
 	}
 
 	return &domain.CsvContents{
-		Header: []string{"Key", "Type", "Summary", "Project", "Dev Time (days)"},
+		Header: []string{"Key", "Type", "Summary", "Project", "Dev Time (days)", "Primary Dev"},
 		Rows:   rows,
 	}, nil
 }
